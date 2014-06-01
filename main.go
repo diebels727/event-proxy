@@ -14,7 +14,7 @@ const (
 var log_file *os.File
 var logger *log.Logger
 
-func Relay(response * ,request * ) {
+func Relay(response http.ResponseWriter,req *http.Request) {
   //forward request to target server
   //stash target response from target server
   //do something
