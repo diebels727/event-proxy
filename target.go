@@ -16,7 +16,6 @@ var logger *log.Logger
 
 func httpGet(response http.ResponseWriter,req *http.Request) {
   logger.Printf("[target] Received GET request.")
-  return;
 }
 
 func main() {
