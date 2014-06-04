@@ -36,8 +36,37 @@ type Proxy struct {}
 
 func (p Proxy) ServeHTTP(response http.ResponseWriter,request *http.Request) {
   logger.Printf("[event-proxy] Intercepting ...")
-  logger.Printf("[event-proxy] request: ",request)
+  logger.Printf("[event-proxy] request.Body: %s",request.Body)
+  logger.Printf("[event-proxy] request.Header: %s",request.Header)
+  logger.Printf("[event-proxy] request.URL: %s",request.URL)
+  logger.Printf("[event-proxy] request.Method: %s",request.Method)
+
+  logger.Printf("[event-proxy] request.Host: %s",request.Host)
+
+  //probably for IPv6?  Need to rewrite?
+  logger.Printf("[event-proxy] request.RemoteAddr: %s",request.RemoteAddr)
+
+  //cannot be set in a client request
+  logger.Printf("[event-proxy] request.RequestURI: %s",request.RequestURI)
+
+  //need to generate a new request
+
+  //rewrite host
+  request.Host = TARGET
+  newRequest,err := http.NewRequest(request.Method,TARGET,nil)
+  if err != nil {
+    logger.Printf("[event-proxy] error generating new request")
+  }
+
+  client := &http.Client{}
+  resp,err := client.Do(newRequest)
+  if err != nil {
+    logger.Printf("[event-proxy] error: %s",err)
+  }
+  logger.Printf("[event-proxy] response: %s",resp)
 }
+
+
 
 func main() {
   log_file,_ = os.Create("proxy.log")
