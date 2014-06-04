@@ -14,8 +14,8 @@ const (
 var log_file *os.File
 var logger *log.Logger
 
-func httpGet(response http.ResponseWriter,req *http.Request) {
-  logger.Printf("[target] Received GET request.")
+func handleHTTP(response http.ResponseWriter,request *http.Request) {
+  logger.Printf("[target] Received request: %s",request.Method)
 }
 
 func main() {
@@ -24,6 +24,6 @@ func main() {
   logger.Printf("[target] Starting up ...")
 
   m := mux.NewRouter()
-  m.HandleFunc("/",httpGet).Methods("GET")
+  m.HandleFunc("/",handleHTTP)
   http.ListenAndServe(":5000",m)
 }
