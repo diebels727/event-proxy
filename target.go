@@ -5,6 +5,7 @@ import (
   "net/http"
   "os"
   "log"
+  "fmt"
 )
 
 const (
@@ -20,8 +21,10 @@ func (s Server) ServeHTTP(responseWriter http.ResponseWriter,request *http.Reque
   logger.Printf("[target] Received request: %s",request.Method)
 }
 
-func handleHTTP(response http.ResponseWriter,request *http.Request) {
-  logger.Printf("[target] Received request: %s",request.Method)
+
+func ArtificialBodyHandler(responseWriter http.ResponseWriter,request *http.Request) {
+  logger.Printf("[target::artificial] Received request: %s",request.Method)
+  fmt.Fprintf(responseWriter,"Fabricated response!")
 }
 
 func main() {
@@ -30,8 +33,8 @@ func main() {
   logger.Printf("[target] Starting up ...")
 
   router := mux.NewRouter()
-  // m.HandleFunc("/",handleHTTP)
   serveFunc := Server{}
   router.NotFoundHandler = serveFunc
+  router.HandleFunc("/artificial",ArtificialBodyHandler)
   http.ListenAndServe(":5000",router)
 }

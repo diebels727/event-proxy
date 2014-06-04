@@ -6,6 +6,8 @@ import (
   "net/url"
   "os"
   "log"
+  "io/ioutil"
+  "fmt"
 )
 
 const (
@@ -35,7 +37,7 @@ func Relay(response http.ResponseWriter,req *http.Request) {
 
 type Proxy struct {}
 
-func (p Proxy) ServeHTTP(responseWriter http.ResponseWriter,request *http.Request) {
+func (p Proxy) ServeHTTP(response http.ResponseWriter,request *http.Request) {
   logger.Printf("[event-proxy] Intercepting ...")
   logger.Printf("[event-proxy] request.Body: %s",request.Body)
   logger.Printf("[event-proxy] request.Header: %s",request.Header)
@@ -99,11 +101,16 @@ func (p Proxy) ServeHTTP(responseWriter http.ResponseWriter,request *http.Reques
 
   client := &http.Client{}
   // resp,err := client.Do(newRequest)
-  resp,err := client.Do(request)
+  targetResponse,err := client.Do(request)
   if err != nil {
     logger.Printf("[event-proxy] error: %s",err)
   }
-  logger.Printf("[event-proxy] response: %s",resp)
+
+  body,err := ioutil.ReadAll(targetResponse.Body)
+  if err != nil {
+    logger.Printf("[event-proxy] error: %s",err)
+  }
+  fmt.Fprintf(response,string(body))
 }
 
 
