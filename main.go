@@ -3,6 +3,7 @@ package main
 import (
   "github.com/gorilla/mux"
   "net/http"
+  "net/url"
   "os"
   "log"
 )
@@ -85,11 +86,15 @@ func (p Proxy) ServeHTTP(responseWriter http.ResponseWriter,request *http.Reques
   logger.Printf("[event-proxy] newRequest.URL.Fragment %s",newRequest.URL.Fragment)
 
 
+  targetURL,err := url.Parse(TARGET)
+  if err != nil {
+    logger.Printf("[event-proxy] error parsing target URL.")
+  }
   //rewrite request
   request.RemoteAddr = ""
   request.RequestURI = ""
-  request.URL.Scheme = "http"
-  request.URL.Host = "localhost:5000"
+  request.URL.Scheme = targetURL.Scheme
+  request.URL.Host = targetURL.Host
 
 
   client := &http.Client{}
