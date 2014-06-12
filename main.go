@@ -86,6 +86,9 @@ func main() {
     Host:   targetURL.Host,
   })
 
+  StartDataLog()
+
+
   proxy.Director = Proxy
   http.Handle("/", proxy)
   http.ListenAndServe(LISTEN_PORT, nil)
