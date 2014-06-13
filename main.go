@@ -10,7 +10,7 @@ import (
 
 const (
   LOG_FORMAT = 3
-  TARGET = "http://www.reddit.com/"
+  TARGET = "http://localhost/"
   LISTEN_PORT = ":9091"
 )
 
@@ -35,9 +35,9 @@ type Event interface {
 }
 
 func Proxy(request *http.Request) {
-  logger.Printf("[event-proxy] Intercepting ...")
+  // logger.Printf("[event-proxy] Intercepting ...")
   //rewrite request
-  request.Host = "www.reddit.com"
+  request.Host = "localhost"
   request.URL.Host = request.Host
   request.URL.Scheme = "http"
 
@@ -58,15 +58,15 @@ func Proxy(request *http.Request) {
 
   //send the event to the event logger
 
-  if (request.Method == "POST") {
-    // 1. Create a new event and assign the relevant information
-    urlString := request.URL.String()
-    event := LogEvent{Name:"CreateEvent",URI: urlString}
-    // 2. Send the event to the datalog service
-    datalog <- event
-  }
+  // if (request.Method == "POST") {
+  //   // 1. Create a new event and assign the relevant information
+  //   urlString := request.URL.String()
+  //   event := LogEvent{Name:"CreateEvent",URI: urlString}
+  //   // 2. Send the event to the datalog service
+  //   datalog <- event
+  // }
 
-  logger.Printf("[event-proxy] Received HTTP request: %s",request.Method)
+  // logger.Printf("[event-proxy] Received HTTP request: %s",request.Method)
 }
 
 func main() {
@@ -74,12 +74,13 @@ func main() {
   logger = log.New(log_file,"",LOG_FORMAT)
 
   logger.Printf("[event-proxy] Starting up ...")
+  logger.Printf("[event-proxy] Listening on port %s ...",LISTEN_PORT)
   targetURL,err := url.Parse(TARGET)
   if err != nil {
     logger.Fatal("[event-proxy] Cannot parse target URL.")
   }
 
-  datalog = make(chan LogEvent,1) // buffered channel of 1; prevent deadlocks while I experiment
+  datalog = make(chan LogEvent,150) // buffered channel of 1; prevent deadlocks while I experiment
 
   proxy := httputil.NewSingleHostReverseProxy(&url.URL{
     Scheme: targetURL.Scheme,
@@ -87,7 +88,6 @@ func main() {
   })
 
   StartDataLog()
-
 
   proxy.Director = Proxy
   http.Handle("/", proxy)
